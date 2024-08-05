@@ -1,13 +1,21 @@
 name: setup-node
 description: "Setup Node.js ⚙️ - Cache dependencies ⚡ - Install dependencies 🔧"
+
+# The 'runs' section specifies that this workflow uses a composite action, meaning it includes multiple steps.
 runs:
   using: "composite"
   steps:
+    # Step 1: Setup Node.js
+    # This step uses the 'actions/setup-node' action to install the specified Node.js version.
+    # It's essential to ensure the correct Node.js version is used for consistency and compatibility.
     - name: Setup Node.js ⚙️
       uses: actions/setup-node@v4
       with:
         node-version: 20
 
+    # Step 2: Cache dependencies
+    # This step uses the 'actions/cache' action to cache 'node_modules' to speed up subsequent workflow runs.
+    # The cache key is generated based on the 'package-lock.json' file hash to ensure the cache is updated if dependencies change.
     - name: Cache dependencies ⚡
       id: cache_dependencies
       uses: actions/cache@v3
@@ -15,6 +23,10 @@ runs:
         path: node_modules
         key: node-modules-${{ hashFiles('package-lock.json') }}
 
+    # Step 3: Install dependencies
+    # This step installs project dependencies using 'npm ci', but only if the cache was not hit.
+    # 'npm ci' is used for a clean and reproducible install of dependencies, ensuring consistency.
+    # The 'if' condition checks whether the cache was hit or not (i.e., if 'node_modules' were restored from cache).
     - name: Install dependencies 🔧
       shell: bash
       if: steps.cache_dependencies.outputs.cache-hit != 'true'
